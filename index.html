@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Soulmate – Moon Phase &amp; Compatibility</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <canvas id="starfield"></canvas>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">
+        <div class="toast-inner">
+            <span class="toast-star">✦</span>
+            <span id="toast-message">Notification</span>
+        </div>
+    </div>
+
+    <div class="app-container">
+
+        <div class="top-bar">
+            <div class="lang-switcher" role="group" aria-label="Language selector">
+                <button type="button" id="lang-btn-pl" class="lang-btn" onclick="setLanguage('pl')">PL</button>
+                <button type="button" id="lang-btn-en" class="lang-btn" onclick="setLanguage('en')">EN</button>
+            </div>
+        </div>
+
+        <header class="site-header">
+            <div class="eyebrow">
+                <span data-i18n="eyebrow1">Ephemeris</span>
+                <span>&bull;</span>
+                <span data-i18n="eyebrow2">Moon Phases</span>
+                <span>&bull;</span>
+                <span data-i18n="eyebrow3">Synastry</span>
+            </div>
+            <h1 class="site-title">LUNAR SOULMATE</h1>
+            <p class="site-desc" data-i18n="siteDesc">
+                Discover the Moon phase from the day you were born and see if two lunar discs merge into a full circle.
+            </p>
+        </header>
+
+        <nav class="mode-nav">
+            <div class="tab-group">
+                <button type="button" id="tab-solo" class="tab-btn active" onclick="switchMode('solo')">
+                    <i class="fa-regular fa-moon"></i>
+                    <span data-i18n="tabSolo">Your Moon</span>
+                </button>
+                <button type="button" id="tab-compat" class="tab-btn" onclick="switchMode('compat')">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                    <span data-i18n="tabCompat">Compatibility</span>
+                </button>
+            </div>
+        </nav>
+
+        <main id="section-solo">
+            <div class="editorial-card">
+                <div class="form-grid-2">
+                    <div>
+                        <label for="solo-name" class="field-label" data-i18n="labelNameOpt">Name (optional)</label>
+                        <input type="text" id="solo-name" data-i18n-placeholder="placeholderName" placeholder="Your name" maxlength="24" class="editorial-input">
+                    </div>
+                    <div>
+                        <label for="solo-date" class="field-label gold" data-i18n="labelBirthDate">Date of birth *</label>
+                        <input type="date" id="solo-date" class="editorial-input">
+                    </div>
+                </div>
+                <button type="button" onclick="calculateSoloMoon()" class="btn-primary">
+                    <span data-i18n="btnCalcSolo">Calculate Moon Phase</span>
+                </button>
+            </div>
+
+            <div id="solo-result" class="hidden editorial-card result-card">
+                <p id="solo-subtitle" class="result-kicker">Moon from your birth date</p>
+                <h2 id="solo-phase-title" class="result-heading">Full Moon</h2>
+
+                <div class="solo-moon-frame">
+                    <canvas id="solo-moon-canvas" width="260" height="260" class="solo-moon-canvas"></canvas>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-cell">
+                        <span class="stat-label gold" data-i18n="statSunSign">Sun Sign</span>
+                        <span id="solo-sun-zodiac" class="stat-value">♎ Libra</span>
+                        <span class="stat-hint" data-i18n="statSunHint">Classic horoscope</span>
+                    </div>
+                    <div class="stat-cell">
+                        <span class="stat-label gold" data-i18n="statMoonSign">Moon Sign</span>
+                        <span id="solo-moon-zodiac" class="stat-value">♌ Leo</span>
+                        <span class="stat-hint" data-i18n="statMoonHint">Changes every ~2.5d</span>
+                    </div>
+                    <div class="stat-cell">
+                        <span class="stat-label" data-i18n="statIllum">Illumination</span>
+                        <span id="solo-illumination" class="stat-value">98%</span>
+                        <span class="stat-hint" data-i18n="statIllumHint">Disc brightness</span>
+                    </div>
+                    <div class="stat-cell">
+                        <span class="stat-label" data-i18n="statAge">Lunar Age</span>
+                        <span id="solo-age" class="stat-value">14.2 d</span>
+                        <span class="stat-hint" data-i18n="statAgeHint">Of 29.5d cycle</span>
+                    </div>
+                </div>
+
+                <p class="edu-note" id="solo-edu-note">
+                    <strong>Sun Sign</strong> is your traditional zodiac sign (ego &amp; personality), while <strong>Moon Sign</strong> shows the constellation the Moon was passing through on your birthday.
+                </p>
+
+                <div class="analysis-box">
+                    <h3 class="analysis-title" data-i18n="phaseCharTitle">Phase Characteristics</h3>
+                    <p id="solo-description" class="analysis-text">Phase description...</p>
+                </div>
+
+                <button type="button" onclick="downloadStory('solo')" class="btn-outline">
+                    <i class="fa-solid fa-download"></i>
+                    <span data-i18n="btnDownloadStory">Save Story Card (1080&times;1920)</span>
+                </button>
+            </div>
+        </main>
+
+        <main id="section-compat" class="hidden">
+            <div class="editorial-card">
+                <div class="celeb-section">
+                    <span class="field-label" data-i18n="celebLabel">Quick compare with a public figure:</span>
+                    <div class="celeb-chips">
+                        <button type="button" onclick="fillCelebrity('Taylor Swift', '1989-12-13')" class="celeb-btn">Taylor Swift</button>
+                        <button type="button" onclick="fillCelebrity('Pedro Pascal', '1975-04-02')" class="celeb-btn">Pedro Pascal</button>
+                        <button type="button" onclick="fillCelebrity('Zendaya', '1996-09-01')" class="celeb-btn">Zendaya</button>
+                        <button type="button" onclick="fillCelebrity('Billie Eilish', '2001-12-18')" class="celeb-btn">Billie Eilish</button>
+                        <button type="button" onclick="fillCelebrity('Timothée Chalamet', '1995-12-27')" class="celeb-btn">Timothée Chalamet</button>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="person-box">
+                        <div class="person-box-header" data-i18n="person1Header">01 / First Person</div>
+                        <div class="person-inputs">
+                            <input type="text" id="p1-name" data-i18n-placeholder="placeholderPersonName" placeholder="Name" maxlength="20" class="editorial-input">
+                            <input type="date" id="p1-date" class="editorial-input">
+                        </div>
+                    </div>
+
+                    <div class="person-box">
+                        <div class="person-box-header" data-i18n="person2Header">02 / Second Person</div>
+                        <div class="person-inputs">
+                            <input type="text" id="p2-name" data-i18n-placeholder="placeholderPersonName" placeholder="Name" maxlength="20" class="editorial-input">
+                            <input type="date" id="p2-date" class="editorial-input">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="calculateCompatibility()" class="btn-primary">
+                    <span data-i18n="btnCompareMoons">Compare Two Moon Discs</span>
+                </button>
+            </div>
+
+            <div id="compat-result" class="hidden editorial-card result-card">
+                <div class="result-kicker" data-i18n="resonanceLabel">Resonance Coefficient</div>
+
+                <div class="compat-score-num" id="compat-score">98%</div>
+                <h2 class="compat-subtitle" id="compat-title">Complementary Full Moon – Soulmates</h2>
+
+                <div class="moon-merge-container">
+                    <div class="orbit-ring"></div>
+                    <div id="moon1-wrapper" class="moon-wrapper" style="transform: translateX(-72px);">
+                        <canvas id="compat-moon1-canvas" width="200" height="200" class="compat-moon-canvas"></canvas>
+                    </div>
+                    <div id="moon2-wrapper" class="moon-wrapper screen-blend" style="transform: translateX(72px);">
+                        <canvas id="compat-moon2-canvas" width="200" height="200" class="compat-moon-canvas"></canvas>
+                    </div>
+                </div>
+
+                <div class="toggle-merge-wrap">
+                    <button type="button" onclick="toggleMoonMergeAnimation()" class="btn-small-ghost">
+                        <i class="fa-solid fa-arrows-left-right"></i>
+                        <span data-i18n="btnToggleMerge">Separate / Merge Discs</span>
+                    </button>
+                </div>
+
+                <div class="compare-cards-grid">
+                    <div class="compare-card">
+                        <div class="compare-card-name" id="res-p1-name">Person 1</div>
+                        <div class="compare-card-phase" id="res-p1-phase">Waxing Crescent</div>
+                        <div class="compare-rows">
+                            <div class="compare-row">
+                                <span class="compare-row-label" data-i18n="rowIllum">Disc illumination:</span>
+                                <span id="res-p1-illum" class="compare-row-val">24%</span>
+                            </div>
+                            <div class="compare-row">
+                                <span class="compare-row-label" data-i18n="rowSunSign">Sun Sign:</span>
+                                <span id="res-p1-sun-zodiac" class="compare-row-val">♎ Libra</span>
+                            </div>
+                            <div class="compare-row">
+                                <span class="compare-row-label" data-i18n="rowMoonSign">Moon Sign:</span>
+                                <span id="res-p1-moon-zodiac" class="compare-row-val gold">♌ Leo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="compare-card">
+                        <div class="compare-card-name" id="res-p2-name">Person 2</div>
+                        <div class="compare-card-phase" id="res-p2-phase">Waning Gibbous</div>
+                        <div class="compare-rows">
+                            <div class="compare-row">
+                                <span class="compare-row-label" data-i18n="rowIllum">Disc illumination:</span>
+                                <span id="res-p2-illum" class="compare-row-val">76%</span>
+                            </div>
+                            <div class="compare-row">
+                                <span class="compare-row-label" data-i18n="rowSunSign">Sun Sign:</span>
+                                <span id="res-p2-sun-zodiac" class="compare-row-val">♋ Cancer</span>
+                            </div>
+                            <div class="compare-row">
+                                <span class="compare-row-label" data-i18n="rowMoonSign">Moon Sign:</span>
+                                <span id="res-p2-moon-zodiac" class="compare-row-val gold">♏ Scorpio</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-box">
+                    <h3 class="analysis-title" data-i18n="relAnalysisTitle">Relationship Analysis</h3>
+                    <p id="compat-description" class="analysis-text">Relationship description...</p>
+                </div>
+
+                <button type="button" onclick="downloadStory('compat')" class="btn-primary auto-width">
+                    <i class="fa-solid fa-download"></i>
+                    <span data-i18n="btnDownloadStory">Save Story Card (1080&times;1920)</span>
+                </button>
+            </div>
+        </main>
+
+        <footer class="site-footer">
+            <p data-i18n="footerText">LUNAR SOULMATE &copy; 2026 &mdash; ASTRONOMICAL CALCULATIONS BASED ON ELP-2000</p>
+        </footer>
+    </div>
+
+    <canvas id="story-export-canvas" width="1080" height="1920" class="hidden"></canvas>
+
+    <script src="js/translations.js"></script>
+    <script src="js/astronomy.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

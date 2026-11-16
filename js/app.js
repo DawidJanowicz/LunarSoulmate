@@ -1,0 +1,524 @@
+let moonTextureCanvas = null;
+
+function createBaseMoonTexture(size = 512) {
+    if (moonTextureCanvas) return moonTextureCanvas;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const cx = size / 2;
+    const cy = size / 2;
+    const r = size * 0.48;
+
+    let seed = 4219;
+    function rand() {
+        seed = (seed * 16807) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.clip();
+
+    const baseGrad = ctx.createRadialGradient(cx - r * 0.2, cy - r * 0.2, r * 0.1, cx, cy, r);
+    baseGrad.addColorStop(0, '#f4f1ea');
+    baseGrad.addColorStop(0.65, '#dcd7c9');
+    baseGrad.addColorStop(0.92, '#b5afa2');
+    baseGrad.addColorStop(1, '#8c867a');
+    ctx.fillStyle = baseGrad;
+    ctx.fillRect(0, 0, size, size);
+
+    const maria = [
+        { x: 0.36, y: 0.34, rx: 0.16, ry: 0.13, rot: -0.3 },
+        { x: 0.56, y: 0.38, rx: 0.12, ry: 0.10, rot: 0.2 },
+        { x: 0.66, y: 0.48, rx: 0.13, ry: 0.11, rot: 0.4 },
+        { x: 0.28, y: 0.52, rx: 0.15, ry: 0.22, rot: -0.1 },
+        { x: 0.52, y: 0.56, rx: 0.10, ry: 0.09, rot: 0.1 },
+        { x: 0.75, y: 0.42, rx: 0.06, ry: 0.08, rot: 0.0 }
+    ];
+
+    maria.forEach(m => {
+        ctx.save();
+        ctx.translate(size * m.x, size * m.y);
+        ctx.rotate(m.rot);
+        const mGrad = ctx.createRadialGradient(0, 0, size * m.rx * 0.1, 0, 0, size * m.rx);
+        mGrad.addColorStop(0, 'rgba(115, 112, 108, 0.42)');
+        mGrad.addColorStop(0.7, 'rgba(130, 127, 122, 0.25)');
+        mGrad.addColorStop(1, 'rgba(130, 127, 122, 0)');
+        ctx.fillStyle = mGrad;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, size * m.rx, size * m.ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    });
+
+    for (let i = 0; i < 140; i++) {
+        const angle = rand() * Math.PI * 2;
+        const dist = Math.sqrt(rand()) * (r * 0.94);
+        const x = cx + Math.cos(angle) * dist;
+        const y = cy + Math.sin(angle) * dist;
+        const cr = (Math.pow(rand(), 2.8) * 18 + 2) * (size / 512);
+
+        ctx.beginPath();
+        ctx.arc(x, y, cr, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(90, 88, 84, ${0.12 + rand() * 0.18})`;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(x + cr * 0.15, y + cr * 0.15, cr * 0.95, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255, 252, 245, ${0.15 + rand() * 0.2})`;
+        ctx.lineWidth = Math.max(0.8, cr * 0.12);
+        ctx.stroke();
+    }
+
+    const tychoX = cx - r * 0.12;
+    const tychoY = cy + r * 0.58;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+    ctx.lineWidth = 1.2;
+    for (let j = 0; j < 14; j++) {
+        const rayAngle = (j / 14) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(tychoX, tychoY);
+        ctx.lineTo(tychoX + Math.cos(rayAngle) * r * 0.65, tychoY + Math.sin(rayAngle) * r * 0.65);
+        ctx.stroke();
+    }
+
+    const limbGrad = ctx.createRadialGradient(cx, cy, r * 0.72, cx, cy, r);
+    limbGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    limbGrad.addColorStop(1, 'rgba(10, 12, 24, 0.45)');
+    ctx.fillStyle = limbGrad;
+    ctx.fillRect(0, 0, size, size);
+
+    ctx.restore();
+    moonTextureCanvas = canvas;
+    return canvas;
+}
+
+function renderMoonOnCanvas(targetCanvas, phase, customCx = null, customCy = null, customRadius = null) {
+    const ctx = targetCanvas.getContext('2d');
+    const w = targetCanvas.width;
+    const h = targetCanvas.height;
+    const cx = customCx !== null ? customCx : w / 2;
+    const cy = customCy !== null ? customCy : h / 2;
+    const r = customRadius !== null ? customRadius : Math.min(w, h) * 0.44;
+
+    if (customCx === null) {
+        ctx.clearRect(0, 0, w, h);
+    }
+
+    const tex = createBaseMoonTexture(512);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.shadowColor = 'rgba(245, 235, 210, 0.22)';
+    ctx.shadowBlur = r * 0.22;
+    ctx.fillStyle = '#090c18';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.clip();
+
+    ctx.drawImage(tex, cx - r * 1.04, cy - r * 1.04, r * 2.08, r * 2.08);
+
+    const angle = phase * 2 * Math.PI;
+    const cosAngle = Math.cos(angle);
+
+    ctx.fillStyle = 'rgba(7, 9, 19, 0.93)';
+    ctx.beginPath();
+    if (phase <= 0.5) {
+        ctx.arc(cx, cy, r + 1, Math.PI / 2, -Math.PI / 2, false);
+        const rx = Math.abs(cosAngle) * r;
+        const anticlockwise = cosAngle < 0;
+        ctx.ellipse(cx, cy, rx, r + 1, 0, -Math.PI / 2, Math.PI / 2, anticlockwise);
+    } else {
+        ctx.arc(cx, cy, r + 1, -Math.PI / 2, Math.PI / 2, false);
+        const rx = Math.abs(cosAngle) * r;
+        const anticlockwise = cosAngle < 0;
+        ctx.ellipse(cx, cy, rx, r + 1, 0, Math.PI / 2, -Math.PI / 2, anticlockwise);
+    }
+    ctx.closePath();
+    ctx.shadowColor = 'rgba(7, 9, 19, 0.95)';
+    ctx.shadowBlur = r * 0.08;
+    ctx.fill();
+
+    ctx.restore();
+}
+
+let currentSoloData = null;
+let currentCompatData = null;
+let isMoonsMerged = true;
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-message').textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3200);
+}
+
+function switchMode(mode) {
+    const soloSec = document.getElementById('section-solo');
+    const compatSec = document.getElementById('section-compat');
+    const tabSolo = document.getElementById('tab-solo');
+    const tabCompat = document.getElementById('tab-compat');
+
+    if (mode === 'solo') {
+        soloSec.classList.remove('hidden');
+        compatSec.classList.add('hidden');
+        tabSolo.classList.add('active');
+        tabCompat.classList.remove('active');
+    } else {
+        soloSec.classList.add('hidden');
+        compatSec.classList.remove('hidden');
+        tabCompat.classList.add('active');
+        tabSolo.classList.remove('active');
+    }
+}
+
+function calculateSoloMoon(shouldScroll = true) {
+    const dict = I18N[currentLang];
+    const dateVal = document.getElementById('solo-date').value;
+    const nameVal = document.getElementById('solo-name').value.trim();
+
+    if (!dateVal) {
+        showToast(dict.toastEnterDate);
+        return;
+    }
+
+    const moon = getMoonData(dateVal);
+    currentSoloData = { ...moon, name: nameVal || dict.defaultSoloName };
+
+    document.getElementById('solo-subtitle').textContent = nameVal
+        ? dict.soloSubWithName(nameVal, moon.formattedDate)
+        : dict.soloSubNoName(moon.formattedDate);
+
+    document.getElementById('solo-phase-title').textContent = moon.phaseInfo.name;
+    document.getElementById('solo-sun-zodiac').textContent = `${moon.sunZodiac.symbol} ${moon.sunZodiac.name}`;
+    document.getElementById('solo-moon-zodiac').textContent = `${moon.moonZodiac.symbol} ${moon.moonZodiac.name}`;
+    document.getElementById('solo-illumination').textContent = `${moon.illumination}%`;
+    document.getElementById('solo-age').textContent = dict.daysUnit(moon.age);
+    document.getElementById('solo-description').textContent = moon.phaseInfo.desc;
+
+    const canvas = document.getElementById('solo-moon-canvas');
+    renderMoonOnCanvas(canvas, moon.phase);
+
+    const resDiv = document.getElementById('solo-result');
+    resDiv.classList.remove('hidden');
+    if (shouldScroll) {
+        resDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+function fillCelebrity(name, date) {
+    const dict = I18N[currentLang];
+    document.getElementById('p2-name').value = name;
+    document.getElementById('p2-date').value = date;
+
+    if (!document.getElementById('p1-date').value) {
+        const soloDate = document.getElementById('solo-date').value;
+        if (soloDate) {
+            document.getElementById('p1-date').value = soloDate;
+            document.getElementById('p1-name').value = document.getElementById('solo-name').value || dict.defaultYou;
+        }
+    }
+    showToast(dict.toastSelectedCeleb(name, date));
+    if (document.getElementById('p1-date').value) {
+        calculateCompatibility(true);
+    }
+}
+
+function calculateCompatibility(shouldScroll = true) {
+    const dict = I18N[currentLang];
+    const d1 = document.getElementById('p1-date').value;
+    const d2 = document.getElementById('p2-date').value;
+    const n1 = document.getElementById('p1-name').value.trim() || dict.defaultSoul1;
+    const n2 = document.getElementById('p2-name').value.trim() || dict.defaultSoul2;
+
+    if (!d1 || !d2) {
+        showToast(dict.toastEnterBothDates);
+        return;
+    }
+
+    const m1 = getMoonData(d1);
+    const m2 = getMoonData(d2);
+    const analysis = analyzeMoonCompatibility(m1, m2);
+
+    currentCompatData = {
+        p1: { ...m1, name: n1 },
+        p2: { ...m2, name: n2 },
+        analysis
+    };
+
+    document.getElementById('compat-score').textContent = `${analysis.score}%`;
+    document.getElementById('compat-title').textContent = analysis.title;
+    document.getElementById('compat-description').textContent = analysis.desc;
+
+    document.getElementById('res-p1-name').textContent = `${n1} (${m1.formattedDate})`;
+    document.getElementById('res-p1-phase').textContent = m1.phaseInfo.name;
+    document.getElementById('res-p1-illum').textContent = `${m1.illumination}%`;
+    document.getElementById('res-p1-sun-zodiac').textContent = `${m1.sunZodiac.symbol} ${m1.sunZodiac.name}`;
+    document.getElementById('res-p1-moon-zodiac').textContent = `${m1.moonZodiac.symbol} ${m1.moonZodiac.name}`;
+
+    document.getElementById('res-p2-name').textContent = `${n2} (${m2.formattedDate})`;
+    document.getElementById('res-p2-phase').textContent = m2.phaseInfo.name;
+    document.getElementById('res-p2-illum').textContent = `${m2.illumination}%`;
+    document.getElementById('res-p2-sun-zodiac').textContent = `${m2.sunZodiac.symbol} ${m2.sunZodiac.name}`;
+    document.getElementById('res-p2-moon-zodiac').textContent = `${m2.moonZodiac.symbol} ${m2.moonZodiac.name}`;
+
+    const c1 = document.getElementById('compat-moon1-canvas');
+    const c2 = document.getElementById('compat-moon2-canvas');
+    renderMoonOnCanvas(c1, m1.phase);
+    renderMoonOnCanvas(c2, m2.phase);
+
+    const resDiv = document.getElementById('compat-result');
+    resDiv.classList.remove('hidden');
+
+    if (shouldScroll) {
+        const spread = window.innerWidth < 640 ? 64 : 85;
+        document.getElementById('moon1-wrapper').style.transform = `translateX(-${spread}px)`;
+        document.getElementById('moon2-wrapper').style.transform = `translateX(${spread}px)`;
+        resDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        isMoonsMerged = false;
+        setTimeout(() => {
+            setMoonMergeState(true);
+        }, 420);
+    }
+}
+
+function setMoonMergeState(merge) {
+    const w1 = document.getElementById('moon1-wrapper');
+    const w2 = document.getElementById('moon2-wrapper');
+    const spread = window.innerWidth < 640 ? 64 : 85;
+
+    isMoonsMerged = merge;
+    if (merge) {
+        w1.style.transform = 'translateX(-4px) scale(1.04)';
+        w2.style.transform = 'translateX(4px) scale(1.04)';
+    } else {
+        w1.style.transform = `translateX(-${spread}px) scale(1)`;
+        w2.style.transform = `translateX(${spread}px) scale(1)`;
+    }
+}
+
+function toggleMoonMergeAnimation() {
+    setMoonMergeState(!isMoonsMerged);
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let currentY = y;
+
+    for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+            ctx.fillText(line.trim(), x, currentY);
+            line = words[n] + ' ';
+            currentY += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    ctx.fillText(line.trim(), x, currentY);
+    return currentY;
+}
+
+function downloadStory(mode) {
+    const dict = I18N[currentLang];
+    const canvas = document.getElementById('story-export-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = 1080;
+    const H = 1920;
+
+    ctx.fillStyle = '#0b0c10';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = 'rgba(232, 228, 217, 0.05)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(W / 2, 54);
+    ctx.lineTo(W / 2, H - 54);
+    ctx.stroke();
+
+    for (let i = 0; i < 120; i++) {
+        const sx = Math.random() * W;
+        const sy = Math.random() * H;
+        const sr = Math.random() * 1.8 + 0.4;
+        ctx.beginPath();
+        ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232, 228, 217, ${Math.random() * 0.45 + 0.1})`;
+        ctx.fill();
+    }
+
+    ctx.strokeStyle = 'rgba(207, 177, 109, 0.45)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(54, 54, W - 108, H - 108);
+    ctx.strokeStyle = 'rgba(232, 228, 217, 0.12)';
+    ctx.strokeRect(68, 68, W - 136, H - 136);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#cfb16d';
+    ctx.font = '500 28px "Plus Jakarta Sans", sans-serif';
+    ctx.fillText(dict.storyHeader, W / 2, 165);
+
+    if (mode === 'solo' && currentSoloData) {
+        const d = currentSoloData;
+
+        ctx.fillStyle = 'rgba(232, 228, 217, 0.6)';
+        ctx.font = '400 32px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(`${d.name.toUpperCase()}  |  ${d.formattedDate}`, W / 2, 255);
+
+        ctx.fillStyle = '#e8e4d9';
+        ctx.font = '600 62px "Cinzel", serif';
+        wrapCanvasText(ctx, d.phaseInfo.name, W / 2, 365, 880, 76);
+
+        renderMoonOnCanvas(canvas, d.phase, W / 2, 830, 300);
+
+        ctx.beginPath();
+        ctx.arc(W / 2, 830, 340, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(232, 228, 217, 0.2)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.fillStyle = '#cfb16d';
+        ctx.font = '600 34px "Cinzel", serif';
+        ctx.fillText(dict.storyStatsSolo(d.sunZodiac, d.moonZodiac), W / 2, 1270);
+
+        ctx.fillStyle = 'rgba(232, 228, 217, 0.75)';
+        ctx.font = '400 30px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(dict.storyIllumSolo(d.illumination, d.age), W / 2, 1325);
+
+        ctx.fillStyle = 'rgba(232, 228, 217, 0.85)';
+        ctx.font = '300 33px "Plus Jakarta Sans", sans-serif';
+        const shortDesc = d.phaseInfo.desc.split('. ').slice(0, 2).join('. ') + '.';
+        wrapCanvasText(ctx, shortDesc, W / 2, 1425, 820, 52);
+
+    } else if (mode === 'compat' && currentCompatData) {
+        const { p1, p2, analysis } = currentCompatData;
+
+        ctx.fillStyle = 'rgba(232, 228, 217, 0.75)';
+        ctx.font = '400 34px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(`${p1.name}   &   ${p2.name}`, W / 2, 255);
+
+        ctx.fillStyle = '#e8e4d9';
+        ctx.font = '600 130px "Cinzel", serif';
+        ctx.fillText(`${analysis.score}%`, W / 2, 420);
+
+        ctx.fillStyle = '#cfb16d';
+        ctx.font = '600 44px "Cinzel", serif';
+        wrapCanvasText(ctx, analysis.title, W / 2, 515, 860, 58);
+
+        const moonY = 930;
+        const moonR = 250;
+
+        ctx.beginPath();
+        ctx.arc(W / 2, moonY, moonR + 38, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(232, 228, 217, 0.2)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        renderMoonOnCanvas(canvas, p1.phase, W / 2 - 12, moonY, moonR);
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        renderMoonOnCanvas(canvas, p2.phase, W / 2 + 12, moonY, moonR);
+        ctx.restore();
+
+        ctx.fillStyle = '#cfb16d';
+        ctx.font = '600 30px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(`${p1.name} (${p1.formattedDate})`, W / 2, 1305);
+        ctx.fillStyle = 'rgba(232, 228, 217, 0.65)';
+        ctx.font = '400 25px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(dict.storyPersonLine(p1), W / 2, 1348);
+
+        ctx.fillStyle = '#cfb16d';
+        ctx.font = '600 30px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(`${p2.name} (${p2.formattedDate})`, W / 2, 1435);
+        ctx.fillStyle = 'rgba(232, 228, 217, 0.65)';
+        ctx.font = '400 25px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(dict.storyPersonLine(p2), W / 2, 1478);
+
+        ctx.fillStyle = 'rgba(232, 228, 217, 0.85)';
+        ctx.font = '300 30px "Plus Jakarta Sans", sans-serif';
+        const shortCompat = analysis.desc.split('. ').slice(0, 2).join('. ') + '.';
+        wrapCanvasText(ctx, shortCompat, W / 2, 1580, 840, 46);
+    } else {
+        showToast(dict.toastGenerateFirst);
+        return;
+    }
+
+    ctx.fillStyle = 'rgba(207, 177, 109, 0.65)';
+    ctx.font = '400 24px "Plus Jakarta Sans", sans-serif';
+    ctx.fillText(dict.storyFooter, W / 2, 1810);
+
+    try {
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = mode === 'solo' ? dict.storyFileSolo : dict.storyFileCompat;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast(dict.toastStorySaved);
+    } catch (err) {
+        showToast(dict.toastStoryError);
+    }
+}
+
+function initStarfield() {
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        stars = [];
+        const count = Math.floor((canvas.width * canvas.height) / 7500);
+        for (let i = 0; i < count; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.4 + 0.3,
+                alpha: Math.random(),
+                speed: (Math.random() * 0.014 + 0.004) * (Math.random() < 0.5 ? 1 : -1),
+                isGold: Math.random() < 0.15
+            });
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let s of stars) {
+            s.alpha += s.speed;
+            if (s.alpha > 0.9 || s.alpha < 0.15) s.speed *= -1;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = s.isGold
+                ? `rgba(207, 177, 109, ${s.alpha})`
+                : `rgba(232, 228, 217, ${s.alpha})`;
+            ctx.fill();
+        }
+        requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    animate();
+}
+
+window.onload = function () {
+    const detectedLang = detectDeviceLanguage();
+    setLanguage(detectedLang);
+    initStarfield();
+
+    document.getElementById('solo-date').value = '1999-07-28';
+    document.getElementById('p1-date').value = '1999-07-28';
+};
