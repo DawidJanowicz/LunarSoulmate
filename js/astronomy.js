@@ -101,44 +101,50 @@ function analyzeMoonCompatibility(m1, m2) {
     let samePhaseDiff = phaseDiff;
     if (samePhaseDiff > 0.5) samePhaseDiff = 1 - samePhaseDiff;
 
-    let score = 70;
+    let score = 50;
     let title = "";
     let desc = "";
 
-    if (fullnessDiff <= 14 && oppositeDiff <= 0.12) {
-        score = Math.min(99, Math.round(99 - fullnessDiff * 0.6));
+    if (fullnessDiff <= 14 && oppositeDiff <= 0.14) {
+        score = Math.min(99, Math.round(99 - fullnessDiff * 0.65));
         title = cDict.fullMergeTitle;
         desc = cDict.fullMergeDesc(m1, m2);
     } else if (m1.illumination >= 85 && m2.illumination >= 85) {
-        score = 92;
+        score = Math.round(88 + ((m1.illumination + m2.illumination - 170) / 30) * 6);
         title = cDict.twoFullTitle;
         desc = cDict.twoFullDesc;
     } else if (m1.illumination <= 15 && m2.illumination <= 15) {
-        score = 90;
+        score = Math.round(86 + ((30 - (m1.illumination + m2.illumination)) / 30) * 6);
         title = cDict.twoNewTitle;
         desc = cDict.twoNewDesc;
     } else if (samePhaseDiff <= 0.08) {
-        score = Math.round(88 - samePhaseDiff * 40);
+        score = Math.round(86 - samePhaseDiff * 60);
         title = cDict.samePhaseTitle;
         desc = cDict.samePhaseDesc(m1);
-    } else if (fullnessDiff <= 22) {
-        score = Math.round(89 - fullnessDiff * 0.4);
+    } else if (fullnessDiff <= 25) {
+        score = Math.round(78 - fullnessDiff * 0.55);
         title = cDict.harmonyTitle;
         desc = cDict.harmonyDesc(m1, m2);
     } else {
-        score = Math.max(74, Math.round(84 - fullnessDiff * 0.15));
+        score = Math.max(30, Math.round(75 - fullnessDiff * 0.78));
         title = cDict.contrastTitle;
         desc = cDict.contrastDesc(m1, m2);
     }
 
     if (m1.moonZodiac.element === m2.moonZodiac.element) {
-        score = Math.min(99, score + 3);
+        score = Math.min(99, score + 4);
         desc += cDict.bonusMoonElement(m1, m2);
     } else if (m1.sunZodiac.element === m2.sunZodiac.element) {
         score = Math.min(99, score + 2);
         desc += cDict.bonusSunElement(m1, m2);
     } else {
         desc += cDict.bonusDiffElement(m1, m2);
+    }
+
+    score = Math.max(30, Math.min(99, score));
+
+    if (score < 60) {
+        desc += cDict.lowScoreDisclaimer;
     }
 
     return { score, title, desc };

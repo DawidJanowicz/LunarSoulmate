@@ -132,7 +132,8 @@ const I18N = {
             contrastDesc: (m1, m2) => `Wasze fazy księżycowe (${m1.phaseInfo.name} i ${m2.phaseInfo.name}) wprowadzają do relacji fascynującą dynamikę i ciągły ruch. To związek, w którym nie ma miejsca na nudę – uczycie się od siebie zupełnie nowego spojrzenia na świat i emocje.`,
             bonusMoonElement: (m1, m2) => ` Dodatkowo oba Wasze Księżyce znajdują się w znakach żywiołu ${m1.moonZodiac.element} (${m1.moonZodiac.name} i ${m2.moonZodiac.name}), co wzmacnia Waszą komunikację emocjonalną.`,
             bonusSunElement: (m1, m2) => ` Wasze znaki zodiaku (${m1.sunZodiac.name} i ${m2.sunZodiac.name}) należą do tego samego żywiołu ${m1.sunZodiac.element}, co ułatwia Wam wzajemne zrozumienie.`,
-            bonusDiffElement: (m1, m2) => ` Wasze Księżyce w znakach ${m1.moonZodiac.name} (${m1.moonZodiac.element}) oraz ${m2.moonZodiac.name} (${m2.moonZodiac.element}) dodają tej relacji intrygującej głębi.`
+            bonusDiffElement: (m1, m2) => ` Wasze Księżyce w znakach ${m1.moonZodiac.name} (${m1.moonZodiac.element}) oraz ${m2.moonZodiac.name} (${m2.moonZodiac.element}) dodają tej relacji intrygującej głębi.`,
+            lowScoreDisclaimer: " Pamiętajcie jednak, że astrologia i znaki zodiaku nie mają naukowego potwierdzenia i są jedynie formą symbolicznej zabawy oraz tradycji – zdecydowanie nie warto się rozstawać tylko dlatego, że dwa Księżyce na ekranie nie złożyły się w pełnię!"
         }
     },
     en: {
@@ -266,7 +267,8 @@ const I18N = {
             contrastDesc: (m1, m2) => `Your lunar phases (${m1.phaseInfo.name} and ${m2.phaseInfo.name}) infuse this connection with intriguing momentum. There is never a dull moment here—you continuously teach each other new ways to experience emotion and the world.`,
             bonusMoonElement: (m1, m2) => ` Furthermore, both of your Moons reside in ${m1.moonZodiac.element} signs (${m1.moonZodiac.name} and ${m2.moonZodiac.name}), amplifying your emotional fluency.`,
             bonusSunElement: (m1, m2) => ` Your Sun signs (${m1.sunZodiac.name} and ${m2.sunZodiac.name}) also share the ${m1.sunZodiac.element} element, supporting effortless mutual understanding.`,
-            bonusDiffElement: (m1, m2) => ` Having your Moons in ${m1.moonZodiac.name} (${m1.moonZodiac.element}) and ${m2.moonZodiac.name} (${m2.moonZodiac.element}) adds captivating depth to your bond.`
+            bonusDiffElement: (m1, m2) => ` Having your Moons in ${m1.moonZodiac.name} (${m1.moonZodiac.element}) and ${m2.moonZodiac.name} (${m2.moonZodiac.element}) adds captivating depth to your bond.`,
+            lowScoreDisclaimer: " Keep in mind that astrology and zodiac signs have no scientific backing and are purely a fun cultural tradition—definitely do not break up just because two Moons on a screen didn't form a full circle!"
         }
     }
 };
