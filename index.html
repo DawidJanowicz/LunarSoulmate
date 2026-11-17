@@ -24,12 +24,12 @@
     <div class="app-container">
 
         <div class="top-bar">
-            <div class="lang-switcher" role="group" aria-label="Language selector">
-                <button type="button" id="lang-btn-pl" class="lang-btn" onclick="setLanguage('pl')">PL</button>
-                <button type="button" id="lang-btn-en" class="lang-btn" onclick="setLanguage('en')">EN</button>
-                <!-- Add new language buttons here, e.g.:
-                <button type="button" id="lang-btn-es" class="lang-btn" onclick="setLanguage('es')">ES</button>
-                -->
+            <div class="lang-select-wrapper">
+                <i class="fa-solid fa-globe lang-globe-icon" aria-hidden="true"></i>
+                <select id="lang-select" class="lang-select" aria-label="Language selector" onchange="setLanguage(this.value)">
+                    <!-- Populated automatically from I18N keys in js/translations.js -->
+                </select>
+                <i class="fa-solid fa-chevron-down lang-chevron-icon" aria-hidden="true"></i>
             </div>
         </div>
 
@@ -127,7 +127,12 @@
         <main id="section-compat" class="hidden">
             <div class="editorial-card">
                 <div class="celeb-section">
-                    <span class="field-label" data-i18n="celebLabel">Quick compare with a public figure:</span>
+                    <div class="celeb-header">
+                        <span class="field-label" data-i18n="celebLabel">Quick compare with a public figure:</span>
+                        <button type="button" id="btn-reshuffle-celebs" class="btn-icon-ghost" onclick="reshuffleCelebrities()" title="Shuffle">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
                     <!-- Populated dynamically with random picks from PUBLIC_FIGURES in js/app.js -->
                     <div id="celeb-chips-container" class="celeb-chips"></div>
                 </div>

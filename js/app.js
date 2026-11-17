@@ -51,6 +51,16 @@ function renderRandomCelebrityChips() {
     });
 }
 
+function reshuffleCelebrities() {
+    const btn = document.getElementById('btn-reshuffle-celebs');
+    if (btn) {
+        btn.classList.remove('spinning');
+        void btn.offsetWidth; // trigger reflow to restart rotation
+        btn.classList.add('spinning');
+    }
+    renderRandomCelebrityChips();
+}
+
 let moonTextureCanvas = null;
 
 function createBaseMoonTexture(size = 512) {

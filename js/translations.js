@@ -7,14 +7,16 @@ let currentLang = 'en';
 //    "--- START OF LANGUAGE BLOCK: en ---" and "--- END OF LANGUAGE BLOCK: en ---"
 // 2. Paste it right below the 'en' block (inside the I18N object) and rename the key
 //    to your two-letter ISO language code (e.g., 'es', 'de', 'fr', 'ru').
-// 3. Translate all text strings, zodiac signs, moon phases, and compatibility texts.
-// 4. Register your language code in detectDeviceLanguage() at the bottom of this file,
-//    then add a matching language button in index.html.
+// 3. Set "langName" to the country flag + English name of the language
+//    (e.g., "🇪🇸 Spanish", "🇩🇪 German"). The header dropdown populates automatically!
+// 4. Translate all text strings, zodiac signs, moon phases, and compatibility texts.
+// 5. Register your language code in detectDeviceLanguage() at the bottom of this file.
 // ============================================================================
 
 const I18N = {
     // --- START OF LANGUAGE BLOCK: pl ---
     pl: {
+        langName: "🇵🇱 Polish",
         pageTitle: "Lunar Soulmate – Twój Księżyc i Kompatybilność Dusz",
         eyebrow1: "Efemerydy",
         eyebrow2: "Fazy Księżyca",
@@ -153,6 +155,7 @@ const I18N = {
 
     // --- START OF LANGUAGE BLOCK: en (COPY FROM HERE FOR NEW TRANSLATIONS) ---
     en: {
+        langName: "🇬🇧 English",
         pageTitle: "Lunar Soulmate – Moon Phase & Compatibility",
         eyebrow1: "Ephemeris",
         eyebrow2: "Moon Phases",
@@ -308,7 +311,21 @@ function detectDeviceLanguage() {
     return 'en';
 }
 
-// Applies the selected language to the UI and updates active header buttons.
+// Populates the header <select> dropdown automatically from all keys in I18N.
+function renderLanguageDropdown() {
+    const select = document.getElementById('lang-select');
+    if (!select) return;
+
+    select.innerHTML = '';
+    Object.keys(I18N).forEach(code => {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = I18N[code].langName || code.toUpperCase();
+        select.appendChild(option);
+    });
+}
+
+// Applies the selected language to the UI and syncs the dropdown value.
 function setLanguage(lang) {
     currentLang = I18N[lang] ? lang : 'en';
     const dict = I18N[currentLang];
@@ -316,10 +333,13 @@ function setLanguage(lang) {
     document.documentElement.lang = currentLang;
     document.title = dict.pageTitle;
 
-    // Update active state on all language switcher buttons in index.html
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.id === `lang-btn-${currentLang}`);
-    });
+    const select = document.getElementById('lang-select');
+    if (select) {
+        if (select.options.length === 0) {
+            renderLanguageDropdown();
+        }
+        select.value = currentLang;
+    }
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
