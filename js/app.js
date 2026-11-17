@@ -271,6 +271,8 @@ function calculateSoloMoon(shouldScroll = true) {
     const canvas = document.getElementById('solo-moon-canvas');
     renderMoonOnCanvas(canvas, moon.phase);
 
+    updateUrlParams('solo', { name: nameVal, date: dateVal });
+
     const resDiv = document.getElementById('solo-result');
     resDiv.classList.remove('hidden');
     if (shouldScroll) {
@@ -339,6 +341,13 @@ function calculateCompatibility(shouldScroll = true) {
     renderMoonOnCanvas(c1, m1.phase);
     renderMoonOnCanvas(c2, m2.phase);
 
+    updateUrlParams('compat', {
+        n1: document.getElementById('p1-name').value.trim(),
+        d1,
+        n2: document.getElementById('p2-name').value.trim(),
+        d2
+    });
+
     const resDiv = document.getElementById('compat-result');
     resDiv.classList.remove('hidden');
 
@@ -372,6 +381,110 @@ function setMoonMergeState(merge) {
 
 function toggleMoonMergeAnimation() {
     setMoonMergeState(!isMoonsMerged);
+}
+
+function updateUrlParams(mode, data) {
+    try {
+        const url = new URL(window.location.href);
+        url.search = '';
+        url.searchParams.set('mode', mode);
+
+        if (mode === 'solo') {
+            if (data.name) url.searchParams.set('name', data.name);
+            if (data.date) url.searchParams.set('date', data.date);
+        } else if (mode === 'compat') {
+            if (data.n1) url.searchParams.set('n1', data.n1);
+            if (data.d1) url.searchParams.set('d1', data.d1);
+            if (data.n2) url.searchParams.set('n2', data.n2);
+            if (data.d2) url.searchParams.set('d2', data.d2);
+        }
+
+        window.history.replaceState({}, '', url.toString());
+    } catch (e) {
+        // Ignore if opened via restricted file:// protocol
+    }
+}
+
+function copyShareLink(mode) {
+    const dict = I18N[currentLang];
+
+    if (mode === 'solo' && currentSoloData) {
+        updateUrlParams('solo', {
+            name: document.getElementById('solo-name').value.trim(),
+            date: currentSoloData.dateString
+        });
+    } else if (mode === 'compat' && currentCompatData) {
+        updateUrlParams('compat', {
+            n1: document.getElementById('p1-name').value.trim(),
+            d1: currentCompatData.p1.dateString,
+            n2: document.getElementById('p2-name').value.trim(),
+            d2: currentCompatData.p2.dateString
+        });
+    } else {
+        showToast(dict.toastGenerateFirst);
+        return;
+    }
+
+    const shareUrl = window.location.href;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl)
+            .then(() => showToast(dict.toastLinkCopied))
+            .catch(() => fallbackCopyText(shareUrl, dict));
+    } else {
+        fallbackCopyText(shareUrl, dict);
+    }
+}
+
+function fallbackCopyText(text, dict) {
+    const tempInput = document.createElement('input');
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    try {
+        document.execCommand('copy');
+        showToast(dict.toastLinkCopied);
+    } catch (err) {
+        showToast(dict.toastLinkError);
+    }
+    document.body.removeChild(tempInput);
+}
+
+function loadStateFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode');
+    const isValidDate = (str) => typeof str === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(str);
+
+    if (mode === 'compat') {
+        const d1 = params.get('d1');
+        const d2 = params.get('d2');
+        const n1 = params.get('n1');
+        const n2 = params.get('n2');
+
+        switchMode('compat');
+        if (n1) document.getElementById('p1-name').value = n1.slice(0, 20);
+        if (n2) document.getElementById('p2-name').value = n2.slice(0, 20);
+
+        if (isValidDate(d1)) document.getElementById('p1-date').value = d1;
+        if (isValidDate(d2)) document.getElementById('p2-date').value = d2;
+
+        if (isValidDate(d1) && isValidDate(d2)) {
+            calculateCompatibility(false);
+            setMoonMergeState(true);
+            return true;
+        }
+    } else if (mode === 'solo') {
+        const date = params.get('date');
+        const name = params.get('name');
+
+        switchMode('solo');
+        if (name) document.getElementById('solo-name').value = name.slice(0, 24);
+        if (isValidDate(date)) {
+            document.getElementById('solo-date').value = date;
+            calculateSoloMoon(false);
+            return true;
+        }
+    }
+    return false;
 }
 
 function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -583,6 +696,9 @@ window.onload = function () {
     renderRandomCelebrityChips();
     initStarfield();
 
-    document.getElementById('solo-date').value = '1999-07-28';
-    document.getElementById('p1-date').value = '1999-07-28';
+    const loadedFromUrl = loadStateFromUrl();
+    if (!loadedFromUrl) {
+        document.getElementById('solo-date').value = '1999-07-28';
+        document.getElementById('p1-date').value = '1999-07-28';
+    }
 };

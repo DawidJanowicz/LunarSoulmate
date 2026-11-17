@@ -117,10 +117,16 @@
                     <p id="solo-description" class="analysis-text">Phase description...</p>
                 </div>
 
-                <button type="button" onclick="downloadStory('solo')" class="btn-outline">
-                    <i class="fa-solid fa-download"></i>
-                    <span data-i18n="btnDownloadStory">Save Story Card (1080&times;1920)</span>
-                </button>
+                <div class="result-actions">
+                    <button type="button" onclick="downloadStory('solo')" class="btn-outline">
+                        <i class="fa-solid fa-download"></i>
+                        <span data-i18n="btnDownloadStory">Save Story Card (1080&times;1920)</span>
+                    </button>
+                    <button type="button" onclick="copyShareLink('solo')" class="btn-outline">
+                        <i class="fa-solid fa-link"></i>
+                        <span data-i18n="btnCopyLink">Copy Result Link</span>
+                    </button>
+                </div>
             </div>
         </main>
 
@@ -228,10 +234,16 @@
                     <p id="compat-description" class="analysis-text">Relationship description...</p>
                 </div>
 
-                <button type="button" onclick="downloadStory('compat')" class="btn-primary auto-width">
-                    <i class="fa-solid fa-download"></i>
-                    <span data-i18n="btnDownloadStory">Save Story Card (1080&times;1920)</span>
-                </button>
+                <div class="result-actions">
+                    <button type="button" onclick="downloadStory('compat')" class="btn-primary auto-width">
+                        <i class="fa-solid fa-download"></i>
+                        <span data-i18n="btnDownloadStory">Save Story Card (1080&times;1920)</span>
+                    </button>
+                    <button type="button" onclick="copyShareLink('compat')" class="btn-outline">
+                        <i class="fa-solid fa-link"></i>
+                        <span data-i18n="btnCopyLink">Copy Result Link</span>
+                    </button>
+                </div>
             </div>
         </main>
 
