@@ -27,6 +27,9 @@
             <div class="lang-switcher" role="group" aria-label="Language selector">
                 <button type="button" id="lang-btn-pl" class="lang-btn" onclick="setLanguage('pl')">PL</button>
                 <button type="button" id="lang-btn-en" class="lang-btn" onclick="setLanguage('en')">EN</button>
+                <!-- Add new language buttons here, e.g.:
+                <button type="button" id="lang-btn-es" class="lang-btn" onclick="setLanguage('es')">ES</button>
+                -->
             </div>
         </div>
 
@@ -125,13 +128,8 @@
             <div class="editorial-card">
                 <div class="celeb-section">
                     <span class="field-label" data-i18n="celebLabel">Quick compare with a public figure:</span>
-                    <div class="celeb-chips">
-                        <button type="button" onclick="fillCelebrity('Taylor Swift', '1989-12-13')" class="celeb-btn">Taylor Swift</button>
-                        <button type="button" onclick="fillCelebrity('Pedro Pascal', '1975-04-02')" class="celeb-btn">Pedro Pascal</button>
-                        <button type="button" onclick="fillCelebrity('Zendaya', '1996-09-01')" class="celeb-btn">Zendaya</button>
-                        <button type="button" onclick="fillCelebrity('Billie Eilish', '2001-12-18')" class="celeb-btn">Billie Eilish</button>
-                        <button type="button" onclick="fillCelebrity('Timothée Chalamet', '1995-12-27')" class="celeb-btn">Timothée Chalamet</button>
-                    </div>
+                    <!-- Populated dynamically with random picks from PUBLIC_FIGURES in js/app.js -->
+                    <div id="celeb-chips-container" class="celeb-chips"></div>
                 </div>
 
                 <div class="form-grid-2">

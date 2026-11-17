@@ -1,6 +1,19 @@
 let currentLang = 'en';
 
+// ============================================================================
+// TRANSLATIONS DICTIONARY (I18N)
+// How to add a new language:
+// 1. Copy the entire 'en' block marked between:
+//    "--- START OF LANGUAGE BLOCK: en ---" and "--- END OF LANGUAGE BLOCK: en ---"
+// 2. Paste it right below the 'en' block (inside the I18N object) and rename the key
+//    to your two-letter ISO language code (e.g., 'es', 'de', 'fr', 'ru').
+// 3. Translate all text strings, zodiac signs, moon phases, and compatibility texts.
+// 4. Register your language code in detectDeviceLanguage() at the bottom of this file,
+//    then add a matching language button in index.html.
+// ============================================================================
+
 const I18N = {
+    // --- START OF LANGUAGE BLOCK: pl ---
     pl: {
         pageTitle: "Lunar Soulmate – Twój Księżyc i Kompatybilność Dusz",
         eyebrow1: "Efemerydy",
@@ -136,6 +149,9 @@ const I18N = {
             lowScoreDisclaimer: " Pamiętajcie jednak, że astrologia i znaki zodiaku nie mają naukowego potwierdzenia i są jedynie formą symbolicznej zabawy oraz tradycji – zdecydowanie nie warto się rozstawać tylko dlatego, że dwa Księżyce na ekranie nie złożyły się w pełnię!"
         }
     },
+    // --- END OF LANGUAGE BLOCK: pl ---
+
+    // --- START OF LANGUAGE BLOCK: en (COPY FROM HERE FOR NEW TRANSLATIONS) ---
     en: {
         pageTitle: "Lunar Soulmate – Moon Phase & Compatibility",
         eyebrow1: "Ephemeris",
@@ -271,30 +287,39 @@ const I18N = {
             lowScoreDisclaimer: " Keep in mind that astrology and zodiac signs have no scientific backing and are purely a fun cultural tradition—definitely do not break up just because two Moons on a screen didn't form a full circle!"
         }
     }
+    // --- END OF LANGUAGE BLOCK: en (PASTE YOUR NEW LANGUAGE BLOCK BELOW THIS LINE) ---
 };
 
+// Automatically detects the user's browser language on startup.
+// Add a new `if` condition here when adding support for another language.
 function detectDeviceLanguage() {
     const langs = navigator.languages && navigator.languages.length
         ? navigator.languages
         : [navigator.language || navigator.userLanguage || 'en'];
 
     for (let lang of langs) {
-        if (typeof lang === 'string' && lang.toLowerCase().startsWith('pl')) {
-            return 'pl';
+        if (typeof lang === 'string') {
+            const lower = lang.toLowerCase();
+            if (lower.startsWith('pl')) return 'pl';
+            // Example for new languages:
+            // if (lower.startsWith('es')) return 'es';
         }
     }
     return 'en';
 }
 
+// Applies the selected language to the UI and updates active header buttons.
 function setLanguage(lang) {
-    currentLang = (lang === 'pl') ? 'pl' : 'en';
+    currentLang = I18N[lang] ? lang : 'en';
     const dict = I18N[currentLang];
 
     document.documentElement.lang = currentLang;
     document.title = dict.pageTitle;
 
-    document.getElementById('lang-btn-pl').classList.toggle('active', currentLang === 'pl');
-    document.getElementById('lang-btn-en').classList.toggle('active', currentLang === 'en');
+    // Update active state on all language switcher buttons in index.html
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.id === `lang-btn-${currentLang}`);
+    });
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');

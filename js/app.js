@@ -1,3 +1,56 @@
+// ============================================================================
+// PUBLIC FIGURES POOL
+// How to add more celebrities / public figures:
+// Add a new object to the PUBLIC_FIGURES array below using the exact format:
+// { name: "Full Name", date: "YYYY-MM-DD" },
+// On every page load, the app randomly selects 6 figures from this pool.
+// ============================================================================
+const PUBLIC_FIGURES = [
+    { name: "Taylor Swift", date: "1989-12-13" },
+    { name: "Pedro Pascal", date: "1975-04-02" },
+    { name: "Zendaya", date: "1996-09-01" },
+    { name: "Billie Eilish", date: "2001-12-18" },
+    { name: "Timothée Chalamet", date: "1995-12-27" },
+    { name: "Keanu Reeves", date: "1964-09-02" },
+    { name: "Sabrina Carpenter", date: "1999-05-11" },
+    { name: "Jenna Ortega", date: "2002-09-27" },
+    { name: "Cillian Murphy", date: "1976-05-25" },
+    { name: "Rihanna", date: "1988-02-20" },
+    { name: "Harry Styles", date: "1994-02-01" },
+    { name: "Lady Gaga", date: "1986-03-28" },
+    { name: "Tom Holland", date: "1996-06-01" },
+    { name: "Margot Robbie", date: "1990-07-02" },
+    { name: "The Weeknd", date: "1990-02-16" },
+    { name: "Ariana Grande", date: "1993-06-26" },
+    { name: "Ryan Gosling", date: "1980-11-12" },
+    { name: "Dua Lipa", date: "1995-08-22" }
+];
+
+const FEATURED_CELEBS_COUNT = 6;
+
+function renderRandomCelebrityChips() {
+    const container = document.getElementById('celeb-chips-container');
+    if (!container) return;
+
+    const shuffled = [...PUBLIC_FIGURES];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    const selected = shuffled.slice(0, FEATURED_CELEBS_COUNT);
+    container.innerHTML = '';
+
+    selected.forEach(person => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'celeb-btn';
+        btn.textContent = person.name;
+        btn.onclick = () => fillCelebrity(person.name, person.date);
+        container.appendChild(btn);
+    });
+}
+
 let moonTextureCanvas = null;
 
 function createBaseMoonTexture(size = 512) {
@@ -517,6 +570,7 @@ function initStarfield() {
 window.onload = function () {
     const detectedLang = detectDeviceLanguage();
     setLanguage(detectedLang);
+    renderRandomCelebrityChips();
     initStarfield();
 
     document.getElementById('solo-date').value = '1999-07-28';
