@@ -162,3 +162,27 @@ function analyzeMoonCompatibility(m1, m2) {
 
     return { score, title, desc };
 }
+
+function getLiveMoonStatus() {
+    const now = new Date();
+    const yyyy = now.getUTCFullYear();
+    const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(now.getUTCDate()).padStart(2, '0');
+    const hh = String(now.getUTCHours()).padStart(2, '0');
+    const min = String(now.getUTCMinutes()).padStart(2, '0');
+
+    const moon = getMoonData(`${yyyy}-${mm}-${dd}`, `${hh}:${min}`);
+
+    // Calculate days until next Full Moon (phase 0.5) and next New Moon (phase 1.0)
+    const distToFull = moon.phase <= 0.5 ? (0.5 - moon.phase) : (1.5 - moon.phase);
+    const distToNew = 1.0 - moon.phase;
+
+    const daysToFull = Math.max(0, Math.round(distToFull * SYNODIC_MONTH));
+    const daysToNew = Math.max(0, Math.round(distToNew * SYNODIC_MONTH));
+
+    const nextEvent = daysToFull <= daysToNew
+        ? { type: 'full', days: daysToFull }
+        : { type: 'new', days: daysToNew };
+
+    return { moon, nextEvent };
+}

@@ -115,7 +115,7 @@ color: var(--text-ivory);
 /* Header */
 .site-header {
 text-align: center;
-margin-bottom: 2.25rem;
+margin-bottom: 1.75rem;
 }
 
 .eyebrow {
@@ -146,6 +146,69 @@ margin: 0 auto;
 font-size: 0.96rem;
 color: var(--text-muted);
 font-weight: 300;
+}
+
+/* Live Moon Status Bar */
+.live-moon-bar {
+display: flex;
+align-items: center;
+gap: 0.95rem;
+background: var(--bg-card);
+border: 1px solid var(--border-line);
+border-radius: 8px;
+padding: 0.7rem 1.15rem;
+margin: 0 auto 1.75rem;
+}
+
+.live-moon-canvas {
+width: 44px;
+height: 44px;
+flex-shrink: 0;
+}
+
+.live-moon-info {
+display: flex;
+flex-direction: column;
+gap: 0.1rem;
+min-width: 0;
+flex: 1;
+}
+
+.live-moon-kicker {
+font-size: 0.68rem;
+font-weight: 600;
+letter-spacing: 0.14em;
+text-transform: uppercase;
+color: var(--gold-400);
+}
+
+.live-moon-main {
+display: flex;
+flex-wrap: wrap;
+align-items: center;
+gap: 0.45rem;
+font-size: 0.86rem;
+color: var(--text-muted);
+}
+
+.live-moon-main strong {
+color: var(--text-ivory);
+font-weight: 500;
+}
+
+.live-moon-sep {
+color: var(--text-faint);
+}
+
+.live-moon-next {
+font-size: 0.76rem;
+color: var(--gold-400);
+background: var(--bg-ink);
+border: 1px solid var(--border-line);
+border-radius: 6px;
+padding: 0.32rem 0.7rem;
+white-space: nowrap;
+flex-shrink: 0;
 }
 
 /* Navigation Tabs */
@@ -727,6 +790,16 @@ color: var(--text-faint);
 @media (max-width: 640px) {
 .app-container {
 padding: 1.25rem 1rem 2.75rem;
+}
+
+.live-moon-bar {
+    flex-wrap: wrap;
+    padding: 0.75rem 0.9rem;
+}
+
+.live-moon-next {
+    width: 100%;
+    text-align: center;
 }
 
 .editorial-card {

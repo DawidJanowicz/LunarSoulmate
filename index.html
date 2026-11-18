@@ -47,6 +47,21 @@
             </p>
         </header>
 
+        <section class="live-moon-bar" aria-label="Current Moon phase">
+            <canvas id="live-moon-canvas" width="56" height="56" class="live-moon-canvas"></canvas>
+            <div class="live-moon-info">
+                <span class="live-moon-kicker" data-i18n="liveMoonKicker">Tonight's Sky</span>
+                <div class="live-moon-main">
+                    <strong id="live-moon-phase">Full Moon</strong>
+                    <span class="live-moon-sep">&bull;</span>
+                    <span id="live-moon-illum">100%</span>
+                    <span class="live-moon-sep">&bull;</span>
+                    <span id="live-moon-zodiac">♌ Leo</span>
+                </div>
+            </div>
+            <div class="live-moon-next" id="live-moon-next">Full Moon in 4d</div>
+        </section>
+
         <nav class="mode-nav">
             <div class="tab-group">
                 <button type="button" id="tab-solo" class="tab-btn active" onclick="switchMode('solo')">

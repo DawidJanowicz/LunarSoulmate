@@ -22,6 +22,9 @@ const I18N = {
         eyebrow2: "Fazy Księżyca",
         eyebrow3: "Relacje",
         siteDesc: "Sprawdź fazę Księżyca z dnia swoich narodzin i zobacz, czy dwie tarcze dopełniają się w pełny krąg.",
+        liveMoonKicker: "Dzisiejszy Księżyc",
+        liveNextFull: (days) => days === 0 ? "Pełnia dzisiaj" : (days === 1 ? "Pełnia za 1 dzień" : `Pełnia za ${days} dni`),
+        liveNextNew: (days) => days === 0 ? "Nów dzisiaj" : (days === 1 ? "Nów za 1 dzień" : `Nów za ${days} dni`),
         tabSolo: "Twój Księżyc",
         tabCompat: "Kompatybilność",
         labelNameOpt: "Imię (opcjonalnie)",
@@ -165,6 +168,9 @@ const I18N = {
         eyebrow2: "Moon Phases",
         eyebrow3: "Synastry",
         siteDesc: "Discover the Moon phase from the day you were born and see if two lunar discs merge into a full circle.",
+        liveMoonKicker: "Tonight's Sky",
+        liveNextFull: (days) => days === 0 ? "Full Moon today" : (days === 1 ? "Full Moon in 1d" : `Full Moon in ${days}d`),
+        liveNextNew: (days) => days === 0 ? "New Moon today" : (days === 1 ? "New Moon in 1d" : `New Moon in ${days}d`),
         tabSolo: "Your Moon",
         tabCompat: "Compatibility",
         labelNameOpt: "Name (optional)",
@@ -370,5 +376,8 @@ function setLanguage(lang) {
     }
     if (!document.getElementById('compat-result').classList.contains('hidden') && document.getElementById('p1-date').value && document.getElementById('p2-date').value) {
         calculateCompatibility(false);
+    }
+    if (typeof renderLiveMoonBar === 'function') {
+        renderLiveMoonBar();
     }
 }

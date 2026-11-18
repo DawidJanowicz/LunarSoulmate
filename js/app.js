@@ -710,9 +710,26 @@ function initStarfield() {
     animate();
 }
 
+function renderLiveMoonBar() {
+    const canvas = document.getElementById('live-moon-canvas');
+    if (!canvas || typeof getLiveMoonStatus !== 'function') return;
+
+    const dict = I18N[currentLang];
+    const { moon, nextEvent } = getLiveMoonStatus();
+
+    renderMoonOnCanvas(canvas, moon.phase);
+    document.getElementById('live-moon-phase').textContent = moon.phaseInfo.name;
+    document.getElementById('live-moon-illum').textContent = `${moon.illumination}%`;
+    document.getElementById('live-moon-zodiac').textContent = `${moon.moonZodiac.symbol} ${moon.moonZodiac.name}`;
+    document.getElementById('live-moon-next').textContent = nextEvent.type === 'full'
+        ? dict.liveNextFull(nextEvent.days)
+        : dict.liveNextNew(nextEvent.days);
+}
+
 window.onload = function () {
     const detectedLang = detectDeviceLanguage();
     setLanguage(detectedLang);
+    renderLiveMoonBar();
     renderRandomCelebrityChips();
     initStarfield();
 
