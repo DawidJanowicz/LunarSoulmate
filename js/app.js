@@ -247,6 +247,7 @@ function switchMode(mode) {
 function calculateSoloMoon(shouldScroll = true) {
     const dict = I18N[currentLang];
     const dateVal = document.getElementById('solo-date').value;
+    const timeVal = document.getElementById('solo-time').value;
     const nameVal = document.getElementById('solo-name').value.trim();
 
     if (!dateVal) {
@@ -254,7 +255,7 @@ function calculateSoloMoon(shouldScroll = true) {
         return;
     }
 
-    const moon = getMoonData(dateVal);
+    const moon = getMoonData(dateVal, timeVal);
     currentSoloData = { ...moon, name: nameVal || dict.defaultSoloName };
 
     document.getElementById('solo-subtitle').textContent = nameVal
@@ -271,7 +272,7 @@ function calculateSoloMoon(shouldScroll = true) {
     const canvas = document.getElementById('solo-moon-canvas');
     renderMoonOnCanvas(canvas, moon.phase);
 
-    updateUrlParams('solo', { name: nameVal, date: dateVal });
+    updateUrlParams('solo', { name: nameVal, date: dateVal, time: timeVal });
 
     const resDiv = document.getElementById('solo-result');
     resDiv.classList.remove('hidden');
@@ -284,11 +285,13 @@ function fillCelebrity(name, date) {
     const dict = I18N[currentLang];
     document.getElementById('p2-name').value = name;
     document.getElementById('p2-date').value = date;
+    document.getElementById('p2-time').value = '';
 
     if (!document.getElementById('p1-date').value) {
         const soloDate = document.getElementById('solo-date').value;
         if (soloDate) {
             document.getElementById('p1-date').value = soloDate;
+            document.getElementById('p1-time').value = document.getElementById('solo-time').value;
             document.getElementById('p1-name').value = document.getElementById('solo-name').value || dict.defaultYou;
         }
     }
@@ -301,7 +304,9 @@ function fillCelebrity(name, date) {
 function calculateCompatibility(shouldScroll = true) {
     const dict = I18N[currentLang];
     const d1 = document.getElementById('p1-date').value;
+    const t1 = document.getElementById('p1-time').value;
     const d2 = document.getElementById('p2-date').value;
+    const t2 = document.getElementById('p2-time').value;
     const n1 = document.getElementById('p1-name').value.trim() || dict.defaultSoul1;
     const n2 = document.getElementById('p2-name').value.trim() || dict.defaultSoul2;
 
@@ -310,8 +315,8 @@ function calculateCompatibility(shouldScroll = true) {
         return;
     }
 
-    const m1 = getMoonData(d1);
-    const m2 = getMoonData(d2);
+    const m1 = getMoonData(d1, t1);
+    const m2 = getMoonData(d2, t2);
     const analysis = analyzeMoonCompatibility(m1, m2);
 
     currentCompatData = {
@@ -344,8 +349,10 @@ function calculateCompatibility(shouldScroll = true) {
     updateUrlParams('compat', {
         n1: document.getElementById('p1-name').value.trim(),
         d1,
+        t1,
         n2: document.getElementById('p2-name').value.trim(),
-        d2
+        d2,
+        t2
     });
 
     const resDiv = document.getElementById('compat-result');
@@ -392,11 +399,14 @@ function updateUrlParams(mode, data) {
         if (mode === 'solo') {
             if (data.name) url.searchParams.set('name', data.name);
             if (data.date) url.searchParams.set('date', data.date);
+            if (data.time) url.searchParams.set('time', data.time);
         } else if (mode === 'compat') {
             if (data.n1) url.searchParams.set('n1', data.n1);
             if (data.d1) url.searchParams.set('d1', data.d1);
+            if (data.t1) url.searchParams.set('t1', data.t1);
             if (data.n2) url.searchParams.set('n2', data.n2);
             if (data.d2) url.searchParams.set('d2', data.d2);
+            if (data.t2) url.searchParams.set('t2', data.t2);
         }
 
         window.history.replaceState({}, '', url.toString());
@@ -411,14 +421,17 @@ function copyShareLink(mode) {
     if (mode === 'solo' && currentSoloData) {
         updateUrlParams('solo', {
             name: document.getElementById('solo-name').value.trim(),
-            date: currentSoloData.dateString
+            date: currentSoloData.dateString,
+            time: currentSoloData.timeString
         });
     } else if (mode === 'compat' && currentCompatData) {
         updateUrlParams('compat', {
             n1: document.getElementById('p1-name').value.trim(),
             d1: currentCompatData.p1.dateString,
+            t1: currentCompatData.p1.timeString,
             n2: document.getElementById('p2-name').value.trim(),
-            d2: currentCompatData.p2.dateString
+            d2: currentCompatData.p2.dateString,
+            t2: currentCompatData.p2.timeString
         });
     } else {
         showToast(dict.toastGenerateFirst);
@@ -453,10 +466,13 @@ function loadStateFromUrl() {
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode');
     const isValidDate = (str) => typeof str === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(str);
+    const isValidTime = (str) => typeof str === 'string' && /^\d{2}:\d{2}$/.test(str);
 
     if (mode === 'compat') {
         const d1 = params.get('d1');
+        const t1 = params.get('t1');
         const d2 = params.get('d2');
+        const t2 = params.get('t2');
         const n1 = params.get('n1');
         const n2 = params.get('n2');
 
@@ -465,7 +481,9 @@ function loadStateFromUrl() {
         if (n2) document.getElementById('p2-name').value = n2.slice(0, 20);
 
         if (isValidDate(d1)) document.getElementById('p1-date').value = d1;
+        if (isValidTime(t1)) document.getElementById('p1-time').value = t1;
         if (isValidDate(d2)) document.getElementById('p2-date').value = d2;
+        if (isValidTime(t2)) document.getElementById('p2-time').value = t2;
 
         if (isValidDate(d1) && isValidDate(d2)) {
             calculateCompatibility(false);
@@ -474,10 +492,12 @@ function loadStateFromUrl() {
         }
     } else if (mode === 'solo') {
         const date = params.get('date');
+        const time = params.get('time');
         const name = params.get('name');
 
         switchMode('solo');
         if (name) document.getElementById('solo-name').value = name.slice(0, 24);
+        if (isValidTime(time)) document.getElementById('solo-time').value = time;
         if (isValidDate(date)) {
             document.getElementById('solo-date').value = date;
             calculateSoloMoon(false);

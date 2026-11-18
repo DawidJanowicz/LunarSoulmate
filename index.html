@@ -62,7 +62,7 @@
 
         <main id="section-solo">
             <div class="editorial-card">
-                <div class="form-grid-2">
+                <div class="form-grid-3">
                     <div>
                         <label for="solo-name" class="field-label" data-i18n="labelNameOpt">Name (optional)</label>
                         <input type="text" id="solo-name" data-i18n-placeholder="placeholderName" placeholder="Your name" maxlength="24" class="editorial-input">
@@ -70,6 +70,10 @@
                     <div>
                         <label for="solo-date" class="field-label gold" data-i18n="labelBirthDate">Date of birth *</label>
                         <input type="date" id="solo-date" class="editorial-input">
+                    </div>
+                    <div>
+                        <label for="solo-time" class="field-label" data-i18n="labelBirthTimeOpt">Time (optional)</label>
+                        <input type="time" id="solo-time" class="editorial-input">
                     </div>
                 </div>
                 <button type="button" onclick="calculateSoloMoon()" class="btn-primary">
@@ -148,7 +152,10 @@
                         <div class="person-box-header" data-i18n="person1Header">01 / First Person</div>
                         <div class="person-inputs">
                             <input type="text" id="p1-name" data-i18n-placeholder="placeholderPersonName" placeholder="Name" maxlength="20" class="editorial-input">
-                            <input type="date" id="p1-date" class="editorial-input">
+                            <div class="person-datetime-row">
+                                <input type="date" id="p1-date" class="editorial-input">
+                                <input type="time" id="p1-time" class="editorial-input" aria-label="Time of birth (optional)">
+                            </div>
                         </div>
                     </div>
 
@@ -156,7 +163,10 @@
                         <div class="person-box-header" data-i18n="person2Header">02 / Second Person</div>
                         <div class="person-inputs">
                             <input type="text" id="p2-name" data-i18n-placeholder="placeholderPersonName" placeholder="Name" maxlength="20" class="editorial-input">
-                            <input type="date" id="p2-date" class="editorial-input">
+                            <div class="person-datetime-row">
+                                <input type="date" id="p2-date" class="editorial-input">
+                                <input type="time" id="p2-time" class="editorial-input" aria-label="Time of birth (optional)">
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -16,13 +16,22 @@ function getSunZodiacSign(month, day) {
     return signs[11];
 }
 
-function getMoonData(dateString) {
+function getMoonData(dateString, timeString = '') {
     const parts = dateString.split('-');
     const year = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10);
     const day = parseInt(parts[2], 10);
 
-    const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    let hours = 12;
+    let minutes = 0;
+    const hasCustomTime = typeof timeString === 'string' && /^\d{2}:\d{2}$/.test(timeString.trim());
+    if (hasCustomTime) {
+        const timeParts = timeString.trim().split(':');
+        hours = parseInt(timeParts[0], 10);
+        minutes = parseInt(timeParts[1], 10);
+    }
+
+    const date = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0));
     const jd = (date.getTime() / 86400000) + 2440587.5;
     const T = (jd - 2451545.0) / 36525.0;
     const rad = Math.PI / 180;
@@ -78,9 +87,13 @@ function getMoonData(dateString) {
     const sunZodiac = getSunZodiacSign(month, day);
     const phaseInfo = phases.find(p => phase >= p.min && phase < p.max) || phases[0];
 
+    const baseFormattedDate = `${parts[2]}.${parts[1]}.${parts[0]}`;
+    const formattedDate = hasCustomTime ? `${baseFormattedDate}, ${timeString.trim()}` : baseFormattedDate;
+
     return {
         dateString,
-        formattedDate: `${parts[2]}.${parts[1]}.${parts[0]}`,
+        timeString: hasCustomTime ? timeString.trim() : '',
+        formattedDate,
         phase,
         age: age.toFixed(1),
         illumination,
