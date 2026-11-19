@@ -11,6 +11,7 @@ Built with vanilla HTML, CSS, and JavaScript. No frameworks, build tools, or ext
 * **Live Moon Almanac**: Displays tonight's real-time lunar phase, miniature rendered disc, illumination percentage, current Moon sign, and countdown to the next Full Moon or New Moon.
 * **Birth Moon Calculator**: Computes the lunar phase, disc illumination percentage, lunar cycle age, Sun sign, and Moon sign based on astronomical algorithms (*ELP-2000 periodic terms*), with an optional time of birth input for finer Moon sign precision.
 * **Moon Compatibility (Synastry)**: Compares two birth dates (and optional times), animates the merging of both lunar discs on screen, and generates a compatibility score and description.
+* **Recent Checks History**: Stores up to 5 recent lookups locally in `localStorage` for both solo and compatibility modes, letting users revisit previous dates with one click or clear their history.
 * **Featured Public Figures**: Randomly selects 6 public figures from a larger built-in pool on load, with a quick reshuffle button for instant comparison.
 * **Shareable Result Links**: Encodes calculation inputs into URL query parameters (`?mode=solo` or `?mode=compat`) so results can be copied and shared via a single link.
 * **Story Card Export**: Renders a high-resolution (`1080x1920`) PNG summary card directly via HTML5 Canvas, ready to download and share.
@@ -27,7 +28,7 @@ LunarSoulmate/
 └── js/
     ├── translations.js # Language dictionaries and localization logic
     ├── astronomy.js    # Lunar phase, ephemeris, live status, and compatibility calculations
-    └── app.js          # Canvas rendering, UI events, celebrity pool, and PNG export
+    └── app.js          # Canvas rendering, UI events, history, celebrity pool, and PNG export
 ```
 
 ---

@@ -27,6 +27,114 @@ const PUBLIC_FIGURES = [
 ];
 
 const FEATURED_CELEBS_COUNT = 6;
+const HISTORY_STORAGE_KEY = 'lunar_soulmate_history_v1';
+const MAX_HISTORY_ITEMS = 5;
+
+function getSavedHistory() {
+    try {
+        const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        return {
+            solo: Array.isArray(parsed?.solo) ? parsed.solo : [],
+            compat: Array.isArray(parsed?.compat) ? parsed.compat : []
+        };
+    } catch (e) {
+        return { solo: [], compat: [] };
+    }
+}
+
+function saveHistoryItem(mode, item) {
+    try {
+        const history = getSavedHistory();
+        if (mode === 'solo') {
+            history.solo = history.solo.filter(
+                entry => !(entry.date === item.date && (entry.time || '') === (item.time || '') && (entry.name || '') === (item.name || ''))
+            );
+            history.solo.unshift(item);
+            history.solo = history.solo.slice(0, MAX_HISTORY_ITEMS);
+        } else if (mode === 'compat') {
+            history.compat = history.compat.filter(
+                entry => !(
+                    entry.d1 === item.d1 &&
+                    (entry.t1 || '') === (item.t1 || '') &&
+                    (entry.n1 || '') === (item.n1 || '') &&
+                    entry.d2 === item.d2 &&
+                    (entry.t2 || '') === (item.t2 || '') &&
+                    (entry.n2 || '') === (item.n2 || '')
+                )
+            );
+            history.compat.unshift(item);
+            history.compat = history.compat.slice(0, MAX_HISTORY_ITEMS);
+        }
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+        renderHistory(mode);
+    } catch (e) {
+    }
+}
+
+function clearHistory(mode) {
+    try {
+        const history = getSavedHistory();
+        history[mode] = [];
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+    } catch (e) {
+    }
+    renderHistory(mode);
+}
+
+function renderHistory(mode) {
+    const history = getSavedHistory();
+    const items = history[mode] || [];
+    const section = document.getElementById(`${mode}-history-section`);
+    const list = document.getElementById(`${mode}-history-list`);
+    if (!section || !list) return;
+
+    if (items.length === 0) {
+        section.classList.add('hidden');
+        list.innerHTML = '';
+        return;
+    }
+
+    section.classList.remove('hidden');
+    list.innerHTML = '';
+
+    items.forEach(item => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'history-chip';
+
+        if (mode === 'solo') {
+            const parts = item.date.split('-');
+            const formatted = `${parts[2]}.${parts[1]}.${parts[0]}`;
+            btn.textContent = item.name ? `${item.name} (${formatted})` : formatted;
+            btn.onclick = () => {
+                document.getElementById('solo-name').value = item.name || '';
+                document.getElementById('solo-date').value = item.date;
+                document.getElementById('solo-time').value = item.time || '';
+                calculateSoloMoon(true);
+            };
+        } else {
+            const p1Parts = item.d1.split('-');
+            const p2Parts = item.d2.split('-');
+            const f1 = `${p1Parts[2]}.${p1Parts[1]}.${p1Parts[0]}`;
+            const f2 = `${p2Parts[2]}.${p2Parts[1]}.${p2Parts[0]}`;
+            const label1 = item.n1 || f1;
+            const label2 = item.n2 || f2;
+            btn.textContent = `${label1} & ${label2}`;
+            btn.onclick = () => {
+                document.getElementById('p1-name').value = item.n1 || '';
+                document.getElementById('p1-date').value = item.d1;
+                document.getElementById('p1-time').value = item.t1 || '';
+                document.getElementById('p2-name').value = item.n2 || '';
+                document.getElementById('p2-date').value = item.d2;
+                document.getElementById('p2-time').value = item.t2 || '';
+                calculateCompatibility(true);
+            };
+        }
+
+        list.appendChild(btn);
+    });
+}
 
 function renderRandomCelebrityChips() {
     const container = document.getElementById('celeb-chips-container');
@@ -273,6 +381,7 @@ function calculateSoloMoon(shouldScroll = true) {
     renderMoonOnCanvas(canvas, moon.phase);
 
     updateUrlParams('solo', { name: nameVal, date: dateVal, time: timeVal });
+    saveHistoryItem('solo', { name: nameVal, date: dateVal, time: timeVal });
 
     const resDiv = document.getElementById('solo-result');
     resDiv.classList.remove('hidden');
@@ -347,6 +456,14 @@ function calculateCompatibility(shouldScroll = true) {
     renderMoonOnCanvas(c2, m2.phase);
 
     updateUrlParams('compat', {
+        n1: document.getElementById('p1-name').value.trim(),
+        d1,
+        t1,
+        n2: document.getElementById('p2-name').value.trim(),
+        d2,
+        t2
+    });
+    saveHistoryItem('compat', {
         n1: document.getElementById('p1-name').value.trim(),
         d1,
         t1,
@@ -731,6 +848,8 @@ window.onload = function () {
     setLanguage(detectedLang);
     renderLiveMoonBar();
     renderRandomCelebrityChips();
+    renderHistory('solo');
+    renderHistory('compat');
     initStarfield();
 
     const loadedFromUrl = loadStateFromUrl();

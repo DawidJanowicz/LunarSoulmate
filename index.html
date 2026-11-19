@@ -94,6 +94,13 @@
                 <button type="button" onclick="calculateSoloMoon()" class="btn-primary">
                     <span data-i18n="btnCalcSolo">Calculate Moon Phase</span>
                 </button>
+                <div id="solo-history-section" class="history-section hidden">
+                    <div class="history-header">
+                        <span class="history-label" data-i18n="recentChecksLabel">Recent checks:</span>
+                        <button type="button" class="btn-text-ghost" onclick="clearHistory('solo')" data-i18n="btnClearHistory">Clear</button>
+                    </div>
+                    <div id="solo-history-list" class="history-chips"></div>
+                </div>
             </div>
 
             <div id="solo-result" class="hidden editorial-card result-card">
@@ -189,6 +196,13 @@
                 <button type="button" onclick="calculateCompatibility()" class="btn-primary">
                     <span data-i18n="btnCompareMoons">Compare Two Moon Discs</span>
                 </button>
+                <div id="compat-history-section" class="history-section hidden">
+                    <div class="history-header">
+                        <span class="history-label" data-i18n="recentChecksLabel">Recent checks:</span>
+                        <button type="button" class="btn-text-ghost" onclick="clearHistory('compat')" data-i18n="btnClearHistory">Clear</button>
+                    </div>
+                    <div id="compat-history-list" class="history-chips"></div>
+                </div>
             </div>
 
             <div id="compat-result" class="hidden editorial-card result-card">
